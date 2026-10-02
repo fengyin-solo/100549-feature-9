@@ -24,6 +24,53 @@
       </span>
     </p>
 
+    <!-- 雨量站网提交台账：上账结果 + 待核故障站 -->
+    <section class="panel">
+      <h3 class="panel-title">雨量站网上账台账 · 待核故障站（{{ pendingFaults.length }}）</h3>
+      <table v-if="pendingFaults.length" class="data-table">
+        <thead>
+          <tr><th>站号</th><th>站点名称</th><th>所属流域</th><th>阈值(mm)</th><th>上报说明</th><th>上报人</th><th>核销</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in pendingFaults" :key="item.id">
+            <td>{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.basin || '—' }}</td>
+            <td>{{ item.thresholdMm ?? '—' }}</td>
+            <td>{{ item.detail }}</td>
+            <td>{{ item.operator }}</td>
+            <td>
+              <button class="btn" type="button" @click="verifyOne(item.id)">现场复核属实，核销</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="empty-state panel-empty">暂无待核故障站</p>
+
+      <h4 class="ledger-title">全部上账与处置记录（{{ ledger.length }}）</h4>
+      <table class="data-table">
+        <thead>
+          <tr><th>类型</th><th>站号</th><th>站点名称</th><th>所属流域</th><th>阈值(mm)</th><th>说明</th><th>经办人</th><th>时间</th><th>核销</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in ledger" :key="item.id">
+            <td><span class="tag" :class="item.type === '待核故障站' ? (item.verified ? 'updated' : 'held') : 'accepted'">{{ item.type }}</span></td>
+            <td>{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.basin || '—' }}</td>
+            <td>{{ item.thresholdMm ?? '—' }}</td>
+            <td>{{ item.detail }}<span v-if="item.verifiedNote" class="receipt-msg">（{{ item.verifiedNote }}）</span></td>
+            <td>{{ item.operator }}</td>
+            <td>{{ formatTime(item.createdAt) }}</td>
+            <td>{{ item.verified ? `已核销 ${formatTime(item.verifiedAt ?? '')}` : '—' }}</td>
+          </tr>
+          <tr v-if="!ledger.length">
+            <td colspan="9" class="empty-state">雨量站网还没有提交记录，台账为空</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
     <form class="filter-bar" @submit.prevent="reload">
       <label v-for="field in filterFields" :key="field" class="filter-item">
         <span>{{ field }}</span>
@@ -79,7 +126,30 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
-import type { EntryRow } from '@/data/types'
+import { listLedger, listPendingFaults, verifyFault } from '@/data/consult-ledger'
+import { useSessionStore } from '@/stores/session'
+import type { EntryRow, LedgerEntry } from '@/data/types'
+
+const store = useSessionStore()
+const ledger = ref<LedgerEntry[]>([])
+const pendingFaults = ref<LedgerEntry[]>([])
+
+function formatTime(value: string): string {
+  if (!value) {
+    return '—'
+  }
+  return new Date(value).toLocaleString('zh-CN', { hour12: false })
+}
+
+function refreshLedger(): void {
+  ledger.value = listLedger()
+  pendingFaults.value = listPendingFaults()
+}
+
+function verifyOne(id: number): void {
+  verifyFault(id, `${store.operator} 于专家会商现场复核确认`)
+  refreshLedger()
+}
 
 const meta = moduleMeta('consult')
 const columns = ["会商编号", "会商主题", "参会专家", "会商日期", "会商结论", "建议措施", "纪要归档日", "会商状态"]
@@ -133,5 +203,8 @@ function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  reload()
+  refreshLedger()
+})
 </script>
