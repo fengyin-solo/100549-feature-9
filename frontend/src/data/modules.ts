@@ -45,6 +45,7 @@ export const MODULES: ModuleMeta[] = [
     actions: ["提交安装", "登记故障", "办理撤除"],
     actionTargets: {"提交安装": "运行正常", "登记故障": "设备故障", "办理撤除": "已撤除"},
     metrics: ["运行正常站点", "故障站点", "阈值雨量最小值"],
+    oneWay: true,
   },
   {
     key: "warning",

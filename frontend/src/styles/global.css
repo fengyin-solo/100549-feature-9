@@ -35,3 +35,18 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .error-text { color: #b42318; }
 .status-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 10px; font-size: 12px; color: var(--muted); }
 .legend-item { background: #eef2f7; border-radius: 999px; padding: 2px 10px; }
+.check-col { width: 32px; text-align: center; }
+.batch-panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.batch-title { margin: 0 0 6px; font-size: 14px; }
+.batch-note { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+.batch-table input, .batch-table select { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-size: 13px; }
+.batch-actions { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.batch-summary { font-size: 12px; color: var(--muted); }
+.receipt-cell { max-width: 280px; font-size: 12px; }
+.receipt[data-kind='已入账'], .receipt[data-kind='已流转'] { color: #067647; }
+.receipt[data-kind='暂存待补'] { color: #b54708; }
+.receipt[data-kind='退回重填'] { color: #b42318; }
+.receipt[data-kind='重复合并'], .receipt[data-kind='已跳过'] { color: var(--muted); }
+.fault-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.fault-hint { font-size: 12px; color: var(--muted); }
+.receipt-list { list-style: none; margin: 8px 0 0; padding: 8px 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
